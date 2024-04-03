@@ -16,7 +16,7 @@
 
 ## Django
 
-### Si utilise Kinected/Back 
+### Si utilise Kinected/Back (https://github.com/Kinected/Back)
 #### Lancer le serveur
 ```bash
 python manage.py runserver 
