@@ -35,10 +35,15 @@ async def receive_messages(websocket):
         try:
             print(websocket)
             async for message in websocket:
-                json_message = json.loads(message)
-                known_face_encodings.append(json_message["face"])
-                known_face_names.append(str(json_message["userID"]))
                 print(f"Received message !")
+                json_message = json.loads(message)
+                if json_message["type"] == True:
+                    known_face_encodings.append(json_message["face"])
+                    known_face_names.append(str(json_message["userID"]))
+                else:
+                    known_face_encodings.pop(known_face_names.index(str(json_message["userID"])))
+                    known_face_names.remove(str(json_message["userID"]))
+
             break  # Si la réception est réussie, on sort de la boucle
         except ConnectionClosedError:
             print("WebSocket connection was closed unexpectedly.")
@@ -65,12 +70,17 @@ async def process_images(websocket):
                     elif time.time() - unknown_start_time >= 2:  
 
                         status = await send_gesture(websocket, "Unknown")
+                        print(status)
                         if status == False:
+                            print(status)
                             websocket = await create_connection(uri)
                         unknown_start_time = None
                 else:
                     unknown_start_time = None  
-                    await send(websocket, face_names, old_face_names)
+                    status = await send(websocket, face_names, old_face_names)
+                    if status == False:
+                        print(status)
+                        websocket = await create_connection(uri)
             
         process_this_frame = not process_this_frame
         old_face_names = face_names

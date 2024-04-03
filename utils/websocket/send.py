@@ -17,12 +17,15 @@ async def send_gesture(websocket, id : str):
 
 
 async def send(websocket, face_names, old_face_names):
+    status = True
     if len(face_names) > 0:
         if len(old_face_names) == 0:
-            await send_gesture(websocket, face_names[0])
+            status = await send_gesture(websocket, face_names[0])
               
         else : 
             if old_face_names[0] != face_names[0] or len(old_face_names) == 0:
-                await send_gesture(websocket, face_names[0])
+                status = await send_gesture(websocket, face_names[0])
+
+    return status
               
 
