@@ -9,9 +9,11 @@ async def send_gesture(websocket, id : str):
             "userID": id
         }
         await websocket.send(json.dumps(payload))
+        return True
         # print("Gesture sent.")
     except ConnectionClosedError:
         print("WebSocket connection was closed unexpectedly.")
+        return False
 
 
 async def send(websocket, face_names, old_face_names):

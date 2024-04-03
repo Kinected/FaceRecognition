@@ -8,6 +8,7 @@ from utils.display.display_faces import display_image
 from utils.requests.get_user_faces import setup_face_names_encodings
 import time
 import json
+from utils.websocket.connect import create_connection
 
 # Websocket URI
 uri = "ws://localhost:8000/ws/faces"
@@ -30,12 +31,19 @@ last_face_names_sent = ""
 unknown_start_time = None
 
 async def receive_messages(websocket):
-    print(websocket)
-    async for message in websocket:
-        json_message = json.loads(message)
-        known_face_encodings.append(json_message["face"])
-        known_face_names.append(str(json_message["userID"]))
-        print(f"Received message !")
+    while True:
+        try:
+            print(websocket)
+            async for message in websocket:
+                json_message = json.loads(message)
+                known_face_encodings.append(json_message["face"])
+                known_face_names.append(str(json_message["userID"]))
+                print(f"Received message !")
+            break  # Si la réception est réussie, on sort de la boucle
+        except ConnectionClosedError:
+            print("WebSocket connection was closed unexpectedly.")
+            print("Reconnecting...")
+            websocket = await create_connection(uri_receive)
 
 
 async def process_images(websocket):
@@ -56,7 +64,9 @@ async def process_images(websocket):
                         unknown_start_time = time.time() 
                     elif time.time() - unknown_start_time >= 2:  
 
-                        await send_gesture(websocket, "Unknown")
+                        status = await send_gesture(websocket, "Unknown")
+                        if status == False:
+                            websocket = await create_connection(uri)
                         unknown_start_time = None
                 else:
                     unknown_start_time = None  
