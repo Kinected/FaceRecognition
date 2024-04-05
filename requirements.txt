@@ -1,0 +1,11 @@
+mediapipe
+numpy
+matplotlib
+pandas
+opencv-python  
+face_recognition
+multiprocess
+asyncio
+websockets
+mediapipe
+jupyter

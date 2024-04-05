@@ -26,15 +26,15 @@ async def send_gesture(websocket, gesture: dict):
 video_capture = cv2.VideoCapture(0)
 
 # Load a sample picture and learn how to recognize it.
-obama_image = face_recognition.load_image_file("obama.jpg")
+obama_image = face_recognition.load_image_file("antho/obama.jpg")
 obama_face_encoding = face_recognition.face_encodings(obama_image)[0]
 
 # Load a second sample picture and learn how to recognize it.
-biden_image = face_recognition.load_image_file("biden.jpg")
+biden_image = face_recognition.load_image_file("antho/biden.jpg")
 biden_face_encoding = face_recognition.face_encodings(biden_image)[0]
 
 # Load a third sample picture and learn how to recognize it.
-antoine_image = face_recognition.load_image_file("antoine.jpg")
+antoine_image = face_recognition.load_image_file("antho/antoine.jpg")
 antoine_face_encoding = face_recognition.face_encodings(antoine_image)[0]
 
 # Create arrays of known face encodings and their names
@@ -122,18 +122,21 @@ async def main():
                     # Only process every other frame of video to save time
                     if process_this_frame:
                         face_names, face_locations = await detect_faces(frame)
+                        print(face_names)
 
                         if len(face_names) > 0:
+                            
                             payload = {
                                 "swipe": face_names[0]
                             }
+                            print(payload)
                             await send_gesture(websocket, payload)
 
                     process_this_frame = not process_this_frame
 
 
                     #Display the frame
-                    display_image(frame, face_locations, face_names)
+                    # display_image(frame, face_locations, face_names)
 
                     
 
