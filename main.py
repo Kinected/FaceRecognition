@@ -86,7 +86,11 @@ async def process_images(websocket):
         old_face_names = face_names
 
         # Display the frame
-        display_image(frame, face_locations, face_names)
+        if len(face_locations) > 0:
+            display_image(frame, [face_locations[0]], [face_names[0]])
+        else:
+            display_image(frame, face_locations, face_names)
+        
 
         await asyncio.sleep(0)
 
