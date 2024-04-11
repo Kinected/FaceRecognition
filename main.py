@@ -1,20 +1,20 @@
-import cv2
 import asyncio
+import cv2
+import json
+import time
 import websockets
 from websockets.exceptions import ConnectionClosed, ConnectionClosedError
-from utils.websocket.send import send, send_gesture
-from utils.face_recognition.detect_faces import detect_faces
+
 from utils.display.display_faces import display_image
-from utils.requests.get_user_faces import setup_face_names_encodings
-import time
-import json
-from utils.websocket.connect import create_connection
+from utils.face_recognition.detect_faces import detect_faces
 from utils.face_recognition.resize import frame_preprocessing
+from utils.requests.get_user_faces import setup_face_names_encodings
+from utils.websocket.connect import create_connection
+from utils.websocket.send import send, send_gesture
 
 # Websocket URI
 uri = "ws://localhost:8000/ws/faces"
 uri_receive = "ws://localhost:8000/ws/new_user"
-
 
 # Get a reference to webcam #0 (the default one)
 video_capture = cv2.VideoCapture(0)
@@ -30,6 +30,7 @@ old_face_names = []
 last_face_names_sent = ""
 
 unknown_start_time = None
+
 
 async def receive_messages(websocket):
     while True:
@@ -56,14 +57,10 @@ async def process_images(websocket):
     global process_this_frame
     global old_face_names
     global unknown_start_time
-    while True:   
+    while True:
         # Grab a single frame of video
         ret, frame = video_capture.read()
-        frame = frame_preprocessing(frame, resize_to=(1000, 1000), resolution=(360, 360))
-
-
-
-
+        frame = frame_preprocessing(frame, resize_to=(640, 640))
 
         # Only process every other frame of video to save time
         if process_this_frame:
@@ -72,8 +69,8 @@ async def process_images(websocket):
             if len(face_names) > 0:
                 if face_names[0] == "Unknown":
                     if unknown_start_time is None:
-                        unknown_start_time = time.time() 
-                    elif time.time() - unknown_start_time >= 2:  
+                        unknown_start_time = time.time()
+                    elif time.time() - unknown_start_time >= 2:
 
                         status = await send_gesture(websocket, "Unknown")
                         print(status)
@@ -82,12 +79,12 @@ async def process_images(websocket):
                             websocket = await create_connection(uri)
                         unknown_start_time = None
                 else:
-                    unknown_start_time = None  
+                    unknown_start_time = None
                     status = await send(websocket, face_names, old_face_names)
                     if status == False:
                         print(status)
                         websocket = await create_connection(uri)
-            
+
         process_this_frame = not process_this_frame
         old_face_names = face_names
 
@@ -96,7 +93,6 @@ async def process_images(websocket):
             display_image(frame, [face_locations[0]], [face_names[0]])
         else:
             display_image(frame, face_locations, face_names)
-        
 
         await asyncio.sleep(0)
 
@@ -119,6 +115,7 @@ async def main():
         except websockets.exceptions.InvalidStatusCode as e:
             print(f"Server rejected WebSocket connection: {e}")
             break
+
 
 asyncio.run(main())
 

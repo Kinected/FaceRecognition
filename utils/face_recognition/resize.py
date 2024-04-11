@@ -1,3 +1,5 @@
+import cv2
+
 
 def frame_preprocessing(frame, resize_to=None, resolution=None, flip=False):
     if resize_to is not None:

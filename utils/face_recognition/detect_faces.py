@@ -1,6 +1,7 @@
-import face_recognition
 import cv2
+import face_recognition
 import numpy as np
+
 
 async def detect_faces(frame, known_face_encodings, known_face_names):
     # Resize frame of video to 1/4 size for faster face recognition processing
@@ -9,7 +10,6 @@ async def detect_faces(frame, known_face_encodings, known_face_names):
     # Convert the image from BGR color (which OpenCV uses) to RGB color (which face_recognition uses)
     rgb_small_frame = np.ascontiguousarray(small_frame[:, :, ::-1])
 
-                        
     # Find all the faces and face encodings in the current frame of video
     face_locations = face_recognition.face_locations(rgb_small_frame)
     face_encodings = face_recognition.face_encodings(rgb_small_frame, face_locations)
@@ -32,4 +32,4 @@ async def detect_faces(frame, known_face_encodings, known_face_names):
         #     name = known_face_names[best_match_index]
         face_names.append(name)
 
-    return face_names, face_locations   
+    return face_names, face_locations
