@@ -9,6 +9,7 @@ from utils.requests.get_user_faces import setup_face_names_encodings
 import time
 import json
 from utils.websocket.connect import create_connection
+from utils.face_recognition.resize import frame_preprocessing
 
 # Websocket URI
 uri = "ws://localhost:8000/ws/faces"
@@ -58,6 +59,11 @@ async def process_images(websocket):
     while True:   
         # Grab a single frame of video
         ret, frame = video_capture.read()
+        frame = frame_preprocessing(frame, resize_to=(1000, 1000))
+
+
+
+
 
         # Only process every other frame of video to save time
         if process_this_frame:
