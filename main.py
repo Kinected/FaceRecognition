@@ -59,7 +59,7 @@ async def process_images(websocket):
     while True:   
         # Grab a single frame of video
         ret, frame = video_capture.read()
-        frame = frame_preprocessing(frame, resize_to=(1000, 1000))
+        frame = frame_preprocessing(frame, resize_to=(1000, 1000), resolution=(360, 360))
 
 
 
