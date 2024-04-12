@@ -30,6 +30,7 @@ old_face_names = []
 last_face_names_sent = ""
 
 unknown_start_time = None
+new_face_start_time = None
 
 
 async def receive_messages(websocket):
@@ -57,6 +58,8 @@ async def process_images(websocket):
     global process_this_frame
     global old_face_names
     global unknown_start_time
+    global new_face_start_time
+    global last_face_names_sent
     while True:
         # Grab a single frame of video
         ret, frame = video_capture.read()
@@ -67,26 +70,23 @@ async def process_images(websocket):
             face_names, face_locations = await detect_faces(frame, known_face_encodings, known_face_names)
 
             if len(face_names) > 0:
-                if face_names[0] == "Unknown":
-                    if unknown_start_time is None:
-                        unknown_start_time = time.time()
-                    elif time.time() - unknown_start_time >= 2:
 
-                        status = await send_gesture(websocket, "Unknown")
-                        print(status)
-                        if status == False:
-                            print(status)
-                            websocket = await create_connection(uri)
+                if len(old_face_names)>0:
+                    if face_names[0] != old_face_names[0]:
                         unknown_start_time = None
-                else:
-                    unknown_start_time = None
-                    status = await send(websocket, face_names, old_face_names)
-                    if status == False:
-                        print(status)
+
+                if unknown_start_time is None:
+                    unknown_start_time = time.time()
+                elif time.time() - unknown_start_time >= 2:
+                    print("Sending gesture...")
+                    status = await send_gesture(websocket, face_names[0])
+                    if not status:
+                        print("Reconnecting...")
                         websocket = await create_connection(uri)
+                    unknown_start_time = None
+            old_face_names = face_names
 
         process_this_frame = not process_this_frame
-        old_face_names = face_names
 
         # Display the frame
         if len(face_locations) > 0:

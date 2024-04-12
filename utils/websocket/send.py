@@ -8,6 +8,7 @@ async def send_gesture(websocket, id : str):
         payload = {
             "userID": id
         }
+        print(payload)
         await websocket.send(json.dumps(payload))
         return True
         # print("Gesture sent.")
