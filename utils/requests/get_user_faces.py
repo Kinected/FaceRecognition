@@ -4,7 +4,7 @@ import numpy as np
 
 
 def get_user_faces():
-    response = requests.get('http://localhost:8000/api/users/faces')
+    response = requests.get('http://localhost:8000/api/user/face/all')
 
     # Vérifiez si la requête a réussi
     if response.status_code == 200:
